@@ -5,6 +5,19 @@ Gallery.currentAlbum = '';
 Gallery.subAlbums = {};
 Gallery.users = [];
 Gallery.displayNames = [];
+Gallery.seamlessGallery = new SeamlessGallery('#gallery', 150);
+Gallery.resizeTriggered = false;
+
+$(window).resize(function() {
+	if(!Gallery.resizeTriggered) {
+		Gallery.resizeTriggered = true;
+		var delay = setInterval(function() {
+			Gallery.seamlessGallery.redraw();
+			clearInterval(delay);
+			Gallery.resizeTriggered = false;
+		}, 500);
+	}
+});
 
 Gallery.sortFunction = function (a, b) {
 	return a.toLowerCase().localeCompare(b.toLowerCase());
@@ -135,13 +148,13 @@ Gallery.view = {};
 Gallery.view.element = null;
 Gallery.view.clear = function () {
 	Gallery.view.element.empty();
+	$(gallery).css('width', $(gallery).parent().width());
 };
 Gallery.view.cache = {};
 
 Gallery.view.addImage = function (image) {
 	var link , thumb;
 	if (Gallery.view.cache[image]) {
-		Gallery.view.element.append(Gallery.view.cache[image]);
 		thumb = Thumbnail.get(image);
 		thumb.queue();
 	} else {
@@ -153,10 +166,12 @@ Gallery.view.addImage = function (image) {
 		thumb = Thumbnail.get(image);
 		thumb.queue().then(function (thumb) {
 			link.removeClass('loading');
+			Gallery.seamlessGallery.add(
+				new SeamlessImage(thumb, link.attr('data-path'), link.attr('href'), '')
+			);
 			link.append(thumb);
 		});
 
-		Gallery.view.element.append(link);
 		Gallery.view.cache[image] = link;
 	}
 };
@@ -265,7 +280,6 @@ Gallery.view.viewAlbum = function (albumPath) {
 	if (subAlbums) {
 		for (i = 0; i < subAlbums.length; i++) {
 			Gallery.view.addAlbum(subAlbums[i]);
-			Gallery.view.element.append(' '); //add a space for justify
 		}
 	}
 
@@ -273,7 +287,6 @@ Gallery.view.viewAlbum = function (albumPath) {
 	if (album) {
 		for (i = 0; i < album.length; i++) {
 			Gallery.view.addImage(album[i]);
-			Gallery.view.element.append(' '); //add a space for justify
 		}
 	}
 
@@ -333,7 +346,6 @@ Gallery.view.showUsers = function () {
 					album = subAlbums[j];
 					album = Gallery.subAlbums[album][0];//first level sub albums is share source id
 					Gallery.view.addAlbum(album);
-					Gallery.view.element.append(' '); //add a space for justify
 				}
 			}
 		}
