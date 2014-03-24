@@ -25,6 +25,12 @@ Thumbnail.getUrl = function (path, square) {
 	}
 };
 
+Thumbnail.clearQueue = function() {
+	Thumbnail.queue = Array();
+	Thumbnail.map = {};
+	Thumbnail.squareMap = {};
+};
+
 Thumbnail.prototype.load = function () {
 	var that = this;
 	if (!this.image) {

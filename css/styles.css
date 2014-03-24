@@ -2,6 +2,14 @@ button.share {
 	display: none;
 }
 
+#loading {
+	height: 100px;
+	width: 100%;
+	padding-top: 45px;
+	z-index: 10;
+	background-color: rgba(255,255,255,0.3);
+}
+
 #gallery .row  {
 	line-height: 0;
 }

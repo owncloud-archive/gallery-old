@@ -147,32 +147,27 @@ Gallery.share = function (event) {
 Gallery.view = {};
 Gallery.view.element = null;
 Gallery.view.clear = function () {
+	Thumbnail.clearQueue();
+	Gallery.seamlessGallery.clear();
 	Gallery.view.element.empty();
 	$(gallery).css('width', $(gallery).parent().width());
 };
 Gallery.view.cache = {};
 
 Gallery.view.addImage = function (image) {
-	var link , thumb;
+	var thumb;
 	if (Gallery.view.cache[image]) {
-		thumb = Thumbnail.get(image);
-		thumb.queue();
+		Gallery.seamlessGallery.add(Gallery.view.cache[image]);
 	} else {
-		link = $('<a/>');
-		link.addClass('image loading');
-		link.attr('data-path', image);
-		link.attr('href', Gallery.getImage(image)).attr('rel', 'album').attr('alt', OC.basename(image)).attr('title', OC.basename(image));
-
+		Gallery.view.cache[image] = null;
 		thumb = Thumbnail.get(image);
 		thumb.queue().then(function (thumb) {
-			link.removeClass('loading');
-			Gallery.seamlessGallery.add(
-				new SeamlessImage(thumb, link.attr('data-path'), link.attr('href'), '')
-			);
-			link.append(thumb);
+			if($.inArray(image, Gallery.albums[Gallery.currentAlbum]) === -1) return; // filter out images removed from queue but already loading
+			var seamlessImage = new SeamlessImage(thumb, image, Gallery.getImage(image), '');
+			Gallery.seamlessGallery.add(seamlessImage);
+			Gallery.view.cache[image] = seamlessImage;
 		});
 
-		Gallery.view.cache[image] = link;
 	}
 };
 
@@ -183,9 +178,6 @@ Gallery.view.addAlbum = function (path, name) {
 		thumbs = Gallery.view.addAlbum.thumbs[path];
 		Gallery.view.element.append(Gallery.view.cache[path]);
 		//event handlers are removed when using clear()
-		Gallery.view.cache[path].click(function () {
-			Gallery.view.viewAlbum(path);
-		});
 		Gallery.view.cache[path].mousemove(function (event) {
 			Gallery.view.addAlbum.mouseEvent.call(Gallery.view.cache[path], thumbs, event);
 		});
@@ -198,9 +190,6 @@ Gallery.view.addAlbum = function (path, name) {
 		label = $('<label/>');
 		link.attr('href', '#' + path);
 		link.addClass('album loading');
-		link.click(function () {
-			Gallery.view.viewAlbum(path);
-		});
 		link.data('path', path);
 		link.data('offset', 0);
 		link.attr('title', OC.basename(path));
@@ -240,9 +229,6 @@ Gallery.view.addAlbum.mouseEvent = function (thumbs, event) {
 		link = this,
 		oldOffset = $(this).data('offset');
 	if (offset !== oldOffset && !link.data('loading')) {
-		if (!thumbs[offset]) {
-			console.log(offset);
-		}
 		var thumb = Thumbnail.get(thumbs[offset], true);
 		link.data('loading', true);
 		thumb.load().then(function (image) {
@@ -271,7 +257,7 @@ Gallery.view.viewAlbum = function (albumPath) {
 	if (!albumPath) {
 		albumPath = $('#gallery').data('token');
 	}
-	Thumbnail.queue = [];
+	if(Gallery.currentAlbum === albumPath) return;
 	Gallery.view.clear();
 	Gallery.currentAlbum = albumPath;
 
@@ -285,6 +271,7 @@ Gallery.view.viewAlbum = function (albumPath) {
 
 	album = Gallery.albums[albumPath];
 	if (album) {
+		Gallery.seamlessGallery.setLength(album.length);
 		for (i = 0; i < album.length; i++) {
 			Gallery.view.addImage(album[i]);
 		}
@@ -366,7 +353,7 @@ $(document).ready(function () {
 	$('#gallery').on('click', 'a.image', function (event) {
 		var $this = $(this);
 		var user = $this.data('path').split('/').shift();
-		var images = $(this).parent().children('a.image').filter(function(i){
+		var images = Gallery.view.element.find('a.image').filter(function(i){
 			// only show images from the same user in the slideshow
 			return $(this).data('path').split('/').shift() === user;
 		});

@@ -13,12 +13,13 @@ function SeamlessImage(image, dataPath, href, name) {
 }
 
 SeamlessImage.prototype.render = function(scale) {
-	link = $('<a/>');
+	var link = $('<a/>');
+	link.addClass('image');
 	link.attr('data-path', this.dataPath);
 	link.attr('href', this.href);
 	link.css('height', (Math.floor(this.height() * scale * 10) / 10) - this.padding*2);
 	link.css('width', (Math.floor(this.width() * scale * 10) / 10) - this.padding*2);
-	image = $(this.image);
+	var image = $(this.image);
 	image.css('height', (Math.floor(this.height() * scale * 10) / 10) - this.padding*2);
 	image.css('width', (Math.floor(this.width() * scale * 10) / 10) - this.padding*2);
 	link.append(image);

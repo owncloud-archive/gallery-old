@@ -8,3 +8,4 @@
 </div>
 <div id='gallery' class="hascontrols"></div>
 <input type="hidden" name="allowShareWithLink" id="allowShareWithLink" value="yes" />
+<div id="loading" class="icon-loading"></div>
