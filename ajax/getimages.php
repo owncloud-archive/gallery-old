@@ -30,17 +30,14 @@ if (isset($_GET['token'])) {
 
 		$view = new \OC\Files\View(\OC\Files\Filesystem::getView()->getAbsolutePath($path));
 		$images = $view->searchByMime('image');
-		
-		$dimensions = array();
+
 		$result = array();
 		foreach ($images as $image) {
 			$result[] = $token . $image['path'];
-			$img = new OCP\Image($token . $image['path']);
-			$dimensions[] = array('height' => $img->height(), 'width' => $img.width());
 		}
 
 		OCP\JSON::setContentTypeHeader();
-		echo json_encode(array('images' => $result, 'users' => array(), 'displayNames' => array(), 'dimensions' => $dimensions));
+		echo json_encode(array('images' => $result, 'users' => array(), 'displayNames' => array()));
 
 		exit;
 	}
@@ -51,9 +48,7 @@ OCP\JSON::checkAppEnabled('gallery');
 
 $images = \OCP\Files::searchByMime('image');
 $user = \OCP\User::getUser();
-$ownerView = new \OC\Files\View('/' . $user . '/files');
 
-$dimensions = array();
 foreach ($images as &$image) {
 	// we show shared images another way
 	if (substr($image['path'], 0, 8) === '/Shared/') {
@@ -63,13 +58,6 @@ foreach ($images as &$image) {
 	if (strpos($path, DIRECTORY_SEPARATOR . ".")) {
 		continue;
 	}
-	
-//	$local = $ownerView->getLocalFile($image['path']);
-//	$img = new OCP\Image($local);
-//	if($img != false) {
-//		$dimensions[] = array('height' => $img->height(), 'width' => $img->width());
-//	}
-	//$dimensions[] = '/' . $user . '/files/' . $local;
 	$image['path'] = $user . $image['path'];
 }
 
@@ -115,9 +103,7 @@ function startsWith($haystack, $needle) {
 $result = array();
 foreach ($images as $image) {
 	$result[] = $image['path'];
-	//$img = new OCP\Image($image['path']);
-	//$dimensions[] = array('height' => $img->height(), 'width' => $img.width());
 }
 
 OCP\JSON::setContentTypeHeader();
-echo json_encode(array('images' => $result, 'users' => $users, 'displayNames' => $displayNames, 'dimensions' => $dimensions));
+echo json_encode(array('images' => $result, 'users' => $users, 'displayNames' => $displayNames));
