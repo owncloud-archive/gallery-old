@@ -59,6 +59,7 @@ SeamlessGallery.prototype.addAlbum = function(seamlessImage) {
 SeamlessGallery.prototype.draw = function() {
 	if(this.paused) return;
 	if(this.albumLength > this.albumLoaded) return; // wait till album images are loaded
+	var bodyWidth = $('body').width();
 	while(this.queueRowElements()) {
 		// Draw rows
 		this.drawRow(this.currentElement, this.currentElement+this.queueRowElements());
@@ -67,6 +68,9 @@ SeamlessGallery.prototype.draw = function() {
 		// Draw last row
 		this.drawRow(this.currentElement, this.images.length, true);
 		$('#loading').hide();
+	}
+	if($('body').width() !== bodyWidth) {
+		$(window).trigger("resize");
 	}
 };
 
