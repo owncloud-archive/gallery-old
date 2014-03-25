@@ -5,7 +5,7 @@ Gallery.currentAlbum = '';
 Gallery.subAlbums = {};
 Gallery.users = [];
 Gallery.displayNames = [];
-Gallery.seamlessGallery = new SeamlessGallery('#gallery', 150);
+Gallery.seamlessGallery = new SeamlessGallery('#gallery', 175);
 Gallery.resizeTriggered = false;
 
 $(window).resize(function() {
@@ -163,7 +163,7 @@ Gallery.view.addImage = function (image) {
 		thumb = Thumbnail.get(image);
 		thumb.queue().then(function (thumb) {
 			if($.inArray(image, Gallery.albums[Gallery.currentAlbum]) === -1) return; // filter out images removed from queue but already loading
-			var seamlessImage = new SeamlessImage(thumb, image, Gallery.getImage(image), '');
+			var seamlessImage = new SeamlessImage(thumb, image, Gallery.getImage(image), null);
 			Gallery.seamlessGallery.add(seamlessImage);
 			Gallery.view.cache[image] = seamlessImage;
 		});
@@ -175,80 +175,16 @@ Gallery.view.addAlbum = function (path, name) {
 	var link, image, label, thumbs, thumb;
 	name = name || OC.basename(path);
 	if (Gallery.view.cache[path]) {
-		thumbs = Gallery.view.addAlbum.thumbs[path];
-		Gallery.view.element.append(Gallery.view.cache[path]);
-		//event handlers are removed when using clear()
-		Gallery.view.cache[path].mousemove(function (event) {
-			Gallery.view.addAlbum.mouseEvent.call(Gallery.view.cache[path], thumbs, event);
-		});
-		thumb = Thumbnail.get(thumbs[0], true);
-		thumb.queue();
+		Gallery.seamlessGallery.addAlbum(Gallery.view.cache[path]);
 	} else {
 		thumbs = Gallery.getAlbumThumbnailPaths(path);
-		Gallery.view.addAlbum.thumbs[path] = thumbs;
-		link = $('<a/>');
-		label = $('<label/>');
-		link.attr('href', '#' + path);
-		link.addClass('album loading');
-		link.data('path', path);
-		link.data('offset', 0);
-		link.attr('title', OC.basename(path));
-		label.text(name);
-		link.append(label);
 		thumb = Thumbnail.get(thumbs[0], true);
-		thumb.queue().then(function (image) {
-			link.removeClass('loading');
-			link.append(image);
-			image.className = 'stack stack0';
-			//delay adding additional images until the front ones are loaded
-			for (var i = 1; i <= 3; i++) {
-				if (thumbs[i]) {
-					thumb = Thumbnail.get(thumbs[i], true);
-					thumb.queue().then(function (i, image) {
-						link.removeClass('loading');
-						link.append(image);
-						image.className = 'stack stack' + i;
-					}.bind(null, i));
-				}
-			}
+		thumb.queue().then(function(thumb) {
+//			if ($.inArray(image, Gallery.albums[Gallery.currentAlbum]) === -1) return; // filter out images removed from queue but already loading
+			var seamlessImage = new SeamlessImage(thumb, image, '#' + path, name);
+			Gallery.seamlessGallery.addAlbum(seamlessImage);
+			Gallery.view.cache[path] = seamlessImage;
 		});
-
-		link.mousemove(function (event) {
-			Gallery.view.addAlbum.mouseEvent.call(link, thumbs, event);
-		});
-
-		Gallery.view.element.append(link);
-		Gallery.view.cache[path] = link;
-	}
-};
-Gallery.view.addAlbum.thumbs = {};
-
-Gallery.view.addAlbum.mouseEvent = function (thumbs, event) {
-	var mousePos = event.pageX - $(this).offset().left,
-		offset = ((Math.floor((mousePos / 200) * thumbs.length - 1) % thumbs.length) + thumbs.length) % thumbs.length, //workaround js modulo "feature" with negative numbers
-		link = this,
-		oldOffset = $(this).data('offset');
-	if (offset !== oldOffset && !link.data('loading')) {
-		var thumb = Thumbnail.get(thumbs[offset], true);
-		link.data('loading', true);
-		thumb.load().then(function (image) {
-			link.data('loading', false);
-			$('img', link).remove();
-			link.append(image);
-			image.className = 'stack stack0';
-			for (var i = 1; i <= 3; i++) {
-				var y = (((i + offset) % thumbs.length) + thumbs.length) % thumbs.length;
-				if (thumbs[y]) {
-					thumb = Thumbnail.get(thumbs[y], true);
-					thumb.queue().then(function (i, image) {
-						link.removeClass('loading');
-						link.append(image);
-						image.className = 'stack stack' + i;
-					}.bind(null, i));
-				}
-			}
-		});
-		$(this).data('offset', offset);
 	}
 };
 Gallery.view.addAlbum.thumbs = {};
@@ -257,13 +193,13 @@ Gallery.view.viewAlbum = function (albumPath) {
 	if (!albumPath) {
 		albumPath = $('#gallery').data('token');
 	}
-	if(Gallery.currentAlbum === albumPath) return;
 	Gallery.view.clear();
 	Gallery.currentAlbum = albumPath;
 
 	var i, album, subAlbums, crumbs, path;
 	subAlbums = Gallery.subAlbums[albumPath];
 	if (subAlbums) {
+		Gallery.seamlessGallery.setAlbumLength(subAlbums.length);
 		for (i = 0; i < subAlbums.length; i++) {
 			Gallery.view.addAlbum(subAlbums[i]);
 		}
@@ -276,6 +212,7 @@ Gallery.view.viewAlbum = function (albumPath) {
 			Gallery.view.addImage(album[i]);
 		}
 	}
+	Gallery.seamlessGallery.run();
 
 	if (albumPath === OC.currentUser) {
 		$('button.share').hide();
@@ -372,16 +309,13 @@ $(document).ready(function () {
 	});
 
 	jQuery.fn.slideShow.onstop = function () {
-		$('#content').show();
 		Thumbnail.paused = false;
-		$(window).scrollTop(Gallery.scrollLocation);
 		var albumParts = Gallery.currentAlbum.split('/');
 		//not an album bit a single shared image, go back to the root
 		if (OC.currentUser && albumParts.length === 2 && albumParts[0] !== OC.currentUser) {
 			Gallery.currentAlbum = OC.currentUser;
 		}
 		location.hash = Gallery.currentAlbum;
-		Thumbnail.concurrent = 3;
 	};
 });
 

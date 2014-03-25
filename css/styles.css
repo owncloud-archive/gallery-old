@@ -67,25 +67,15 @@ button.share {
 	transform: rotate(-1.5deg);
 }
 
-#gallery > a.album > img {
-	width: 200px;
-	height: 200px;
-	border-radius: 5px;
-	border: 1px solid #ccc;
-}
-
-#gallery > a.album > label {
-	color: white;
-	text-shadow: 0 0 10px #000;
-	position: absolute;
-	bottom: 0;
-	width: 100%;
+#gallery a.album label, #gallery a.image label {
+	color: rgb(255, 255, 255);
+	text-shadow: 0 0 7px rgb(0, 0, 0);
+	position: relative;
+	bottom: 15px;
+	left: 10px;
 	text-align: center;
 	font-size: 18px;
-	padding-bottom: 5px;
-	overflow: hidden;
 	text-overflow: ellipsis;
-	z-index: 11;
 }
 
 #gallery > a {
@@ -94,24 +84,6 @@ button.share {
 	vertical-align: top;
 	*display: inline;
 	zoom: 1;
-}
-
-#gallery > a.image >img {
-	max-height: 200px;
-}
-
-#gallery > a.album,
-#gallery > a.image{
-	opacity: 1;
-	transition: opacity 500ms;
-	-moz-transition: opacity 500ms;
-	-o-transition: opacity 500ms;
-	-ms-transition: opacity 500ms;
-	-webkit-transition: opacity 500ms;
-}
-#gallery > a.album.loading,
-#gallery > a.image.loading{
-	opacity: 0;
 }
 
 #controls > .right {

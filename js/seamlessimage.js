@@ -14,7 +14,7 @@ function SeamlessImage(image, dataPath, href, name) {
 
 SeamlessImage.prototype.render = function(scale) {
 	var link = $('<a/>');
-	link.addClass('image');
+	(this.name === null) ? link.addClass('image') : link.addClass('album');
 	link.attr('data-path', this.dataPath);
 	link.attr('href', this.href);
 	link.css('height', (Math.floor(this.height() * scale * 10) / 10) - this.padding*2);
@@ -23,6 +23,9 @@ SeamlessImage.prototype.render = function(scale) {
 	image.css('height', (Math.floor(this.height() * scale * 10) / 10) - this.padding*2);
 	image.css('width', (Math.floor(this.width() * scale * 10) / 10) - this.padding*2);
 	link.append(image);
+	var label = $('<label/>');
+	(this.name === null) ? label.html('&nbsp;') : label.text(this.name);
+	link.append(label);
 	return link;
 };
 

@@ -52,7 +52,7 @@ Thumbnail.prototype.load = function () {
 
 Thumbnail.queue = [];
 Thumbnail.loadingCount = 0;
-Thumbnail.concurrent = 3;
+Thumbnail.concurrent = 6; // Chrome supports 6 connections
 Thumbnail.paused = false;
 
 Thumbnail.processQueue = function () {

@@ -7,12 +7,22 @@ function SeamlessGallery(gallery, lineHeight) {
 	this.lineHeight = lineHeight;
 	this.images = new Array();
 	this.currentElement = 0;
+	this.length = 0;
+	this.albumLength = 0;
+	this.albumLoaded = 0;
 	this.maxScaleLastRow = 1.3;
 	this.fadeInTime = 500;
+	this.padding = 1;
+	this.paused = true;
 }
 
 SeamlessGallery.prototype.setLength = function(length) {
-	this.length = length;
+	this.length = length + this.albumLength;
+};
+
+SeamlessGallery.prototype.setAlbumLength = function(albumLength) {
+	this.albumLength = albumLength;
+	this.length = this.length + albumLength;
 };
 
 SeamlessGallery.prototype.queueRowWidth = function(start, end) {
@@ -28,9 +38,9 @@ SeamlessGallery.prototype.queueRowElements = function() {
 	var i = 0;
 	for(i = this.currentElement; i < this.images.length; i++) {
 		width += this.images[i].width();
-		if(width >= $(this.gallery).width()) break;
+		if(width >= ($(this.gallery).width() - 2*this.padding)) break;
 	}
-	return (width < $(this.gallery).width()) ? false : (i-this.currentElement);
+	return (width < ($(this.gallery).width() - 2*this.padding)) ? false : (i-this.currentElement);
 };
 
 SeamlessGallery.prototype.add = function(seamlessImage) {
@@ -39,7 +49,16 @@ SeamlessGallery.prototype.add = function(seamlessImage) {
 	this.draw();
 };
 
+SeamlessGallery.prototype.addAlbum = function(seamlessImage) {
+	seamlessImage.scaleToHeight(this.lineHeight);
+	this.images.unshift(seamlessImage);
+	this.albumLoaded++;
+	this.draw();
+};
+
 SeamlessGallery.prototype.draw = function() {
+	if(this.paused) return;
+	if(this.albumLength > this.albumLoaded) return; // wait till album images are loaded
 	while(this.queueRowElements()) {
 		// Draw rows
 		this.drawRow(this.currentElement, this.currentElement+this.queueRowElements());
@@ -52,7 +71,7 @@ SeamlessGallery.prototype.draw = function() {
 };
 
 SeamlessGallery.prototype.drawRow = function(start, end, lastRow) {
-	var scale = $(this.gallery).width() / this.queueRowWidth(start, end);
+	var scale = ($(this.gallery).width() - 2*this.padding) / this.queueRowWidth(start, end);
 	if(lastRow === true) scale = Math.min(scale, this.maxScaleLastRow);
 	var row = $('<div/>');
 	row.addClass('row');
@@ -70,7 +89,21 @@ SeamlessGallery.prototype.redraw = function() {
 	this.draw();
 };
 
+SeamlessGallery.prototype.run = function() {
+	this.paused = false;
+	this.draw();
+};
+
+SeamlessGallery.prototype.pause = function() {
+	this.paused = true;
+};
+
 SeamlessGallery.prototype.clear = function() {
 	this.images = new Array();
 	this.currentElement = 0;
+	this.length = 0;
+	this.albumLength = 0;
+	this.albumLoaded = 0;
+	this.paused = true;
+	$('#loading').show();
 };
