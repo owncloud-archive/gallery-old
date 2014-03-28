@@ -212,7 +212,7 @@ Slideshow.start = function (images, start, options) {
 		Gallery.scrollLocation = $(window).scrollTop();
 	}
 	images.slideShow($('#slideshow'), start, options);
-	content.hide();
+	//content.hide();
 };
 
 Slideshow.end = function () {

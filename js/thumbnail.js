@@ -25,6 +25,12 @@ Thumbnail.getUrl = function (path, square) {
 	}
 };
 
+Thumbnail.clearQueue = function() {
+	Thumbnail.queue = Array();
+	Thumbnail.map = {};
+	Thumbnail.squareMap = {};
+};
+
 Thumbnail.prototype.load = function () {
 	var that = this;
 	if (!this.image) {
@@ -46,7 +52,7 @@ Thumbnail.prototype.load = function () {
 
 Thumbnail.queue = [];
 Thumbnail.loadingCount = 0;
-Thumbnail.concurrent = 3;
+Thumbnail.concurrent = 6; // Chrome supports 6 connections
 Thumbnail.paused = false;
 
 Thumbnail.processQueue = function () {
