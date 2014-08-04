@@ -45,10 +45,10 @@ Gallery.fillAlbums = function () {
 			Gallery.imageMap[image.path] = image;
 		}
 
-		for (path in Gallery.albumMap) {
+		$.each(Gallery.albumMap, function(path) {
 			Gallery.albumMap[path].images.sort(sortFunction);
 			Gallery.albumMap[path].subAlbums.sort(sortFunction);
-		}
+		});
 	});
 };
 
