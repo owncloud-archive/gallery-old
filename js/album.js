@@ -59,6 +59,17 @@ Album.prototype.getFourImages = function(images, targetHeight, ratio, a) {
 	a.height(targetHeight - 1);
 
 	for (var i = 0; i < iImagesCount; i++) {
+		if(iImagesCount == 2){
+			calcWidth=(targetHeight * ratio);
+		}
+		if(iImagesCount == 3){
+			if(i==0) {
+				calcWidth=(targetHeight * ratio);
+			}else{
+				calcWidth = (targetHeight * ratio) / 2;
+			}
+		}
+		
 		this.getOneImage(images[i], targetHeight, calcWidth, a);
 	}
 
