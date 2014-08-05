@@ -28,9 +28,9 @@ Album.prototype.getThumbnailWidth = function () {
  * @param {object} a
  * @returns {a}
  */
-Album.prototype.getOneImage = function(image, targetHeight, calcWidth, a) {
-	var gm = new GalleryImage(image.src, 1);
-	gm.getThumbnail(1).then(function(img) {
+Album.prototype.getOneImage = function(image, targetHeight, calcWidth, a, square) {
+	var gm = new GalleryImage(image.src, square);
+	gm.getThumbnail(square).then(function(img) {
 		img= img;
 		a.append(img);
 		img.height = targetHeight / 2;
@@ -61,16 +61,19 @@ Album.prototype.getFourImages = function(images, targetHeight, ratio, a) {
 	for (var i = 0; i < iImagesCount; i++) {
 		if(iImagesCount == 2){
 			calcWidth=(targetHeight * ratio);
+			square=0;
 		}
 		if(iImagesCount == 3){
 			if(i==0) {
 				calcWidth=(targetHeight * ratio);
+				square=0;
 			}else{
 				calcWidth = (targetHeight * ratio) / 2;
+				square=1;
 			}
 		}
 		
-		this.getOneImage(images[i], targetHeight, calcWidth, a);
+		this.getOneImage(images[i], targetHeight, calcWidth, a, square);
 	}
 
 	return;
