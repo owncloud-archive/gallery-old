@@ -51,6 +51,7 @@ Album.prototype.getFourImages = function(images, targetHeight, ratio, a) {
 
 	var calcWidth = (targetHeight * ratio) / 2;
 	var iImagesCount = images.length;
+	var square=1;
 	if (iImagesCount > 4) {
 		iImagesCount = 4;
 	}
