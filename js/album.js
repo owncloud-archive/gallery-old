@@ -37,8 +37,8 @@ Album.prototype.getOneImage = function(image, targetHeight, calcWidth, a, square
 	gm.getThumbnail(square).then(function(img) {
 		img= img;
 		a.append(img);
-		img.height = targetHeight / 2;
-		img.width = calcWidth;
+		img.height = (targetHeight / 2) - 2 ;
+		img.width = calcWidth - 2;
 	});
 
 	return;
@@ -61,8 +61,6 @@ Album.prototype.getFourImages = function(images, targetHeight, ratio, a) {
 		iImagesCount = 4;
 	}
 
-	a.width(calcWidth * 2);
-	a.height(targetHeight - 1);
 
 	for (var i = 0; i < iImagesCount; i++) {
 		if (iImagesCount == 2) {
@@ -96,7 +94,7 @@ Album.prototype.getDom = function(targetHeight) {
 		var calcWidth = (targetHeight * ratio) / 2;
 
 		a.width(calcWidth * 2);
-		a.height(targetHeight - 1);
+		a.height(targetHeight);
 
 		if (album.images.length > 1) {
 			album.getFourImages(album.images, targetHeight, ratio, a);
