@@ -11,7 +11,17 @@ Thumbnail.map = {};
 Thumbnail.squareMap = {};
 
 Thumbnail.get = function (path, square) {
-	var map = (square) ? Thumbnail.squareMap : Thumbnail.map;
+	var map = {};
+	if(square == 1){
+		map = Thumbnail.squareMap;
+		square = 1;
+	}else if(square == 2){//needed Album thumbnail preview if 2 or 3 pics
+		map = Thumbnail.squareMap;
+		square = 0;
+	}else{
+		map = Thumbnail.map;
+		square = 0;
+	}
 	if (!map[path]) {
 		map[path] = new Thumbnail(path, square);
 	}
