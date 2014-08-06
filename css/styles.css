@@ -88,6 +88,7 @@ button.share {
 #gallery a.album img{
 	position: relative;
 	float:left;
+	margin:1px;
 }
 
 #gallery a.album.loading,
