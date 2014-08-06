@@ -28,9 +28,13 @@ Album.prototype.getThumbnailWidth = function () {
  * @param {object} a
  * @returns {a}
  */
-Album.prototype.getOneImage = function(image, targetHeight, calcWidth, a) {
-	var gm = new GalleryImage(image.src, 1);
-	gm.getThumbnail(1).then(function(img) {
+Album.prototype.getOneImage = function(image, targetHeight, calcWidth, a, square) {
+	var parts = image.src.split('/');
+	parts.shift();
+	var path = parts.join('/');
+
+	var gm = new GalleryImage(image.src, path);
+	gm.getThumbnail(square).then(function(img) {
 		img= img;
 		a.append(img);
 		img.height = targetHeight / 2;
@@ -51,6 +55,8 @@ Album.prototype.getFourImages = function(images, targetHeight, ratio, a) {
 
 	var calcWidth = (targetHeight * ratio) / 2;
 	var iImagesCount = images.length;
+	var square = 1;
+	
 	if (iImagesCount > 4) {
 		iImagesCount = 4;
 	}
@@ -59,7 +65,21 @@ Album.prototype.getFourImages = function(images, targetHeight, ratio, a) {
 	a.height(targetHeight - 1);
 
 	for (var i = 0; i < iImagesCount; i++) {
-		this.getOneImage(images[i], targetHeight, calcWidth, a);
+		if (iImagesCount == 2) {
+			calcWidth = (targetHeight * ratio);
+			square = 2;
+		}
+		if (iImagesCount == 3) {
+			if (i == 0) {
+				calcWidth = (targetHeight * ratio);
+				square = 2;
+			} else {
+				calcWidth = (targetHeight * ratio) / 2;
+				square = 1;
+			}
+		}
+
+		this.getOneImage(images[i], targetHeight, calcWidth, a, square);
 	}
 
 	return;
