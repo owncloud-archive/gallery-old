@@ -103,8 +103,8 @@ Album.prototype.getDom = function(targetHeight) {
 				album.getFourImages(album.subAlbums[0].images, targetHeight, ratio, a);
 			} else {
 				a.append(img);
-				img.height = targetHeight;
-				img.width = targetHeight * ratio;
+				img.height = (targetHeight - 2);
+				img.width = (targetHeight * ratio) - 2;
 			}
 
 		}
