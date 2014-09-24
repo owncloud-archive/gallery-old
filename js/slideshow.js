@@ -90,8 +90,8 @@ SlideShow.prototype.show = function (index) {
 		if (this.current === index) {
 			this.currentImage = image;
 			if (this.zoomable) {
-	    		this.zoomable.dispose();
-	    		this.zoomable = null;
+				this.zoomable.dispose();
+				this.zoomable = null;
 			}
 			this.container.children('img').remove();
 			this.container.append(image);
@@ -104,7 +104,6 @@ SlideShow.prototype.show = function (index) {
 				width: image.width,
 				height: image.height
 			}), image);
-			//this.fitImage(image);
 			this.setUrl(this.images[index].path);
 			if (this.playing) {
 				this.setTimeout();
