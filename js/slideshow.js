@@ -56,10 +56,10 @@ SlideShow.prototype.init = function (play) {
 		} else if (evt.keyCode === 32) { // space
 			makeCallBack(this.play)(evt);
 		} else if (e.keyCode === 48 || e.keyCode === 96) { // zero
-            makeCallback(function() {
-                if (this.zoomable) {
-                    this.zoomable.flyZoomToFit();
-                }
+			makeCallBack(function() {
+				if (this.zoomable) {
+					this.zoomable.flyZoomToFit();
+				}
 			}.bind(this))(evt);
 		}
 	}.bind(this));
@@ -89,14 +89,14 @@ SlideShow.prototype.show = function (index) {
 		// check if we moved along while we were loading
 		if (this.current === index) {
 			this.currentImage = image;
-            if (this.zoomable) {
-                this.zoomable.dispose();
-                this.zoomable = null;
-            }
+			if (this.zoomable) {
+	    		this.zoomable.dispose();
+	    		this.zoomable = null;
+			}
 			this.container.children('img').remove();
 			this.container.append(image);
-            jQuery(image).css('position', 'absolute');
-            this.zoomable = new bigshot.SimpleImage(new bigshot.ImageParameters({
+			jQuery(image).css('position', 'absolute');
+			this.zoomable = new bigshot.SimpleImage(new bigshot.ImageParameters({
 				container: this.container.get(0),
 				maxZoom: 2,
 				minZoom: -5,
@@ -230,10 +230,10 @@ SlideShow.prototype.previous = function () {
 SlideShow.prototype.stop = function () {
 	this.clearTimeout();
 	this.container.hide();
-    if (this.zoomable) {
-        this.zoomable.dispose();
-        this.zoomable = null;
-    }
+	if (this.zoomable) {
+		this.zoomable.dispose();
+		this.zoomable = null;
+	}
 	this.active = false;
 	if (this.onStop) {
 		this.onStop();
