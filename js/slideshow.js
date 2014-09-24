@@ -47,7 +47,6 @@ SlideShow.prototype.init = function (play) {
 	this.container.children('.exit').click(makeCallBack(this.stop));
 	this.container.children('.pause').click(makeCallBack(this.pause));
 	this.container.children('.play').click(makeCallBack(this.play));
-	this.container.click(makeCallBack(this.next));
 
 	$(document).keyup(function (evt) {
 		if (evt.keyCode === 27) { // esc
@@ -58,21 +57,14 @@ SlideShow.prototype.init = function (play) {
 			makeCallBack(this.next)(evt);
 		} else if (evt.keyCode === 32) { // space
 			makeCallBack(this.play)(evt);
+		} else if (e.keyCode === 48 || e.keyCode === 96) { // zero
+            makeCallback(function() {
+                if (this.zoomable) {
+                    this.zoomable.flyZoomToFit();
+                }
+			}.bind(this))(evt);
 		}
 	}.bind(this));
-
-	if ($.fn.mousewheel) {
-		this.container.bind('mousewheel.fb', function (e, delta) {
-			e.preventDefault();
-			if ($(e.target).get(0).clientHeight === 0 || $(e.target).get(0).scrollHeight === $(e.target).get(0).clientHeight) {
-				if (delta > 0) {
-					this.previous();
-				} else {
-					this.next();
-				}
-			}
-		}.bind(this));
-	}
 
 	jQuery(window).resize(function () {
 		this.fitImage(this.currentImage.bind(this));
@@ -99,9 +91,22 @@ SlideShow.prototype.show = function (index) {
 		// check if we moved along while we were loading
 		if (this.current === index) {
 			this.currentImage = image;
+            if (this.zoomable) {
+                this.zoomable.dispose();
+                this.zoomable = null;
+            }
 			this.container.children('img').remove();
 			this.container.append(image);
-			this.fitImage(image);
+            jQuery(image).css('position', 'absolute');
+            this.zoomable = new bigshot.SimpleImage(new bigshot.ImageParameters({
+				container: this.container.get(0),
+				maxZoom: 2,
+				minZoom: -5,
+				touchUI: false,
+				width: image.width,
+				height: image.height
+			}), image);
+			//this.fitImage(image);
 			this.setUrl(this.images[index].path);
 			if (this.playing) {
 				this.setTimeout();
@@ -227,6 +232,10 @@ SlideShow.prototype.previous = function () {
 SlideShow.prototype.stop = function () {
 	this.clearTimeout();
 	this.container.hide();
+    if (this.zoomable) {
+        this.zoomable.dispose();
+        this.zoomable = null;
+    }
 	this.active = false;
 	if (this.onStop) {
 		this.onStop();
