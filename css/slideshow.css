@@ -68,6 +68,14 @@
 	opacity: .6;
 }
 
+#slideshow .icon-view-fullscreen-start {
+    background-image: url("../img/fullscreen.svg");
+}
+
+#slideshow .icon-view-fullscreen-exit {
+    background-image: url("../img/fullscreen_exit.svg");
+}
+
 #slideshow > .next, #slideshow > .previous {
 	top: 50%;
 	margin-top: -21px;
@@ -84,6 +92,15 @@
 #slideshow > .exit {
 	right: 0;
 	top: 0;
+}
+
+#slideshow > .fullscreen-start , #slideshow > .fullscreen-exit{
+	right: 55px;
+	top: 0;
+}
+
+#slideshow > .fullscreen-exit {
+	display:none;
 }
 
 #slideshow > .pause, #slideshow > .play {
