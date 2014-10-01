@@ -1053,7 +1053,7 @@ bigshot.FullScreen = function (container) {
         return null;
     };
     
-    this.requestFullScreen = findFunc (container, ["requestFullScreen", "mozRequestFullScreen", "webkitRequestFullScreen"]);
+    this.requestFullScreen = findFunc (container, ["requestFullScreen", "mozRequestFullScreen", "webkitRequestFullscreen"]);
     this.cancelFullScreen = findFunc (document, ["cancelFullScreen", "mozCancelFullScreen", "webkitCancelFullScreen"]);
     
     this.restoreSize = this.requestFullScreen != null;
