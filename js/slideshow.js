@@ -161,7 +161,6 @@ SlideShow.prototype.show = function (index) {
 			
 			// prevent zoom-on-doubleClick
 			this.zoomable.addEventListener('dblclick', function(ie) {
-				this.zoomToFit();
 				ie.preventDefault();
 			}.bind(this));
 			
