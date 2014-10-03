@@ -38,9 +38,9 @@ SlideShow.prototype.init = function (play) {
 	// makes UI controls work in mobile version
 	var browser = new bigshot.Browser();
 	this.container.children('input').each(function(i, e) {
-		browser.registerListener(e, "click", browser.stopEventBubblingHandler(), false);
-		browser.registerListener(e, "touchstart", browser.stopEventBubblingHandler(), false);
-		browser.registerListener(e, "touchend", browser.stopEventBubblingHandler(), false);
+		browser.registerListener(e, 'click', browser.stopEventBubblingHandler(), false);
+		browser.registerListener(e, 'touchstart', browser.stopEventBubblingHandler(), false);
+		browser.registerListener(e, 'touchend', browser.stopEventBubblingHandler(), false);
 	});
 	
 	// hide arrows and play/pause when only one pic
@@ -99,7 +99,9 @@ SlideShow.prototype.zoomToFit = function() {
 };
 
 SlideShow.prototype.fullScreenStart = function () {
-	if (!this.canFullScreen) return;
+	if (!this.canFullScreen) {
+		return;
+	}
 	this.fullScreen = new bigshot.FullScreen(this.container.get(0));
 	this.fullScreen.open();
 	this.fullScreen.addOnClose(function(evt){
@@ -108,13 +110,17 @@ SlideShow.prototype.fullScreenStart = function () {
 };
 
 SlideShow.prototype.fullScreenExit = function () {
-	if (this.fullScreen === null) return;
+	if (this.fullScreen === null) {
+		return;
+	}
 	this.fullScreen.close();
 	this.fullScreen = null;
 };
 
 SlideShow.prototype.fullScreenToggle = function() {
-	if (this.zoomable === null) return;
+	if (this.zoomable === null) {
+		return;
+	}
 	if (this.fullScreen !== null) {
 		this.fullScreenExit();
 	} else {
@@ -154,9 +160,10 @@ SlideShow.prototype.show = function (index) {
 			}), image);
 			
 			// prevent zoom-on-doubleClick
-			this.zoomable.addEventListener("dblclick", function(ie) {
+			this.zoomable.addEventListener('dblclick', function(ie) {
+				this.zoomToFit();
 				ie.preventDefault();
-			});
+			}.bind(this));
 			
 			this.setUrl(this.images[index].path);
 			if (this.playing) {
