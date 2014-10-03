@@ -49,9 +49,6 @@ SlideShow.prototype.init = function (play) {
 		this.container.find('.play, .pause').hide();
 	}
 
-	// hide fullscreen icon if not fullscreen-capable
-	this.container.children('.fullscreen-start').toggle(this.canFullScreen);
-	
 	var makeCallBack = function (handler) {
 		return function (evt) {
 			if (!this.active) {
@@ -67,8 +64,6 @@ SlideShow.prototype.init = function (play) {
 	this.container.children('.exit').click(makeCallBack(this.stop));
 	this.container.children('.pause').click(makeCallBack(this.pause));
 	this.container.children('.play').click(makeCallBack(this.play));
-	this.container.children('.fullscreen-start').click(makeCallBack(this.fullScreenStart));
-	this.container.children('.fullscreen-exit').click(makeCallBack(this.fullScreenExit));
 	
 	$(document).keyup(function (evt) {
 		if (evt.keyCode === 27) { // esc
@@ -107,16 +102,12 @@ SlideShow.prototype.fullScreenStart = function () {
 	if (!this.canFullScreen) return;
 	this.fullScreen = new bigshot.FullScreen(this.container.get(0));
 	this.fullScreen.open();
-	this.container.find('.fullscreen-start').hide();
-	this.container.find('.fullscreen-exit').show();
 	this.fullScreen.addOnClose(function(evt){
 		this.fullScreenExit();
 	}.bind(this));
 };
 
 SlideShow.prototype.fullScreenExit = function () {
-	this.container.find('.fullscreen-exit').hide();
-	this.container.find('.fullscreen-start').show();
 	if (this.fullScreen === null) return;
 	this.fullScreen.close();
 	this.fullScreen = null;
