@@ -160,6 +160,7 @@ SlideShow.prototype.show = function (index) {
 				width: image.width,
 				height: image.height
 			}), image);
+			this.zoomable.setMinZoom(this.zoomable.getZoomToFitValue());
 			
 			// prevent zoom-on-doubleClick
 			this.zoomable.addEventListener('dblclick', function(ie) {
