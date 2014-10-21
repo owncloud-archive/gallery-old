@@ -104,7 +104,12 @@ if ($token) {
 		$tmpl->assign('requesttoken', \OCP\Util::callRegister());
 		$tmpl->assign('displayName', $ownerDisplayName);
 		$tmpl->assign('albumName', $albumName);
-
+                $urlLinkIdentifiers= (isset($token)?'&t='.$token:'')
+                                                        .(isset($_GET['dir'])?'&dir='.$_GET['dir']:'')
+                                                        .(isset($_GET['file'])?'&file='.$_GET['file']:'');
+                $tmpl->assign('downloadURL',
+                        OCP\Util::linkToPublic('files') . $urlLinkIdentifiers . '&download&path=' . urlencode($getPath));
+		
 		$tmpl->printPage();
 		exit;
 	}
