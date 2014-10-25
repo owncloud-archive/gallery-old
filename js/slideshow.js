@@ -19,11 +19,30 @@ var SlideShow = function (container, images, interval, maxScale) {
 	this.currentImage = null;
 	this.onStop = null;
 	this.active = false;
+	this.zoomable = null;
+	this.fullScreen = null;
+	this.canFullScreen = false;
 };
 
 SlideShow.prototype.init = function (play) {
 	this.active = true;
 	this.container.children('img').remove();
+	
+	// detect fullscreen capability (mobile)
+	var e = this.container.get(0);
+	this.canFullScreen = e.requestFullscreen !== undefined
+		|| e.mozRequestFullScreen !== undefined
+		|| e.webkitRequestFullscreen !== undefined
+		|| e.msRequestFullscreen !== undefined;
+	
+	// makes UI controls work in mobile version
+	var browser = new bigshot.Browser();
+	this.container.children('input').each(function(i, e) {
+		browser.registerListener(e, 'click', browser.stopEventBubblingHandler(), false);
+		browser.registerListener(e, 'touchstart', browser.stopEventBubblingHandler(), false);
+		browser.registerListener(e, 'touchend', browser.stopEventBubblingHandler(), false);
+	});
+	
 	// hide arrows and play/pause when only one pic
 	this.container.find('.next, .previous').toggle(this.images.length > 1);
 	if (this.images.length === 1) {
@@ -45,8 +64,7 @@ SlideShow.prototype.init = function (play) {
 	this.container.children('.exit').click(makeCallBack(this.stop));
 	this.container.children('.pause').click(makeCallBack(this.pause));
 	this.container.children('.play').click(makeCallBack(this.play));
-	this.container.click(makeCallBack(this.next));
-
+	
 	$(document).keyup(function (evt) {
 		if (evt.keyCode === 27) { // esc
 			makeCallBack(this.stop)(evt);
@@ -56,25 +74,15 @@ SlideShow.prototype.init = function (play) {
 			makeCallBack(this.next)(evt);
 		} else if (evt.keyCode === 32) { // space
 			makeCallBack(this.play)(evt);
+		} else if (evt.keyCode === 70) { // f (fullscreen)
+			makeCallBack(this.fullScreenToggle)(evt);
+		} else if (evt.keyCode === 48 || evt.keyCode === 96) { // zero
+			makeCallBack(this.zoomToFit)(evt);
 		}
 	}.bind(this));
 
-	if ($.fn.mousewheel) {
-		this.container.bind('mousewheel.fb', function (e, delta) {
-			e.preventDefault();
-			if ($(e.target).get(0).clientHeight === 0 ||
-				$(e.target).get(0).scrollHeight === $(e.target).get(0).clientHeight) {
-				if (delta > 0) {
-					this.previous();
-				} else {
-					this.next();
-				}
-			}
-		}.bind(this));
-	}
-
 	jQuery(window).resize(function () {
-		this.fitImage(this.currentImage.bind(this));
+		this.zoomToFit();
 	}.bind(this));
 
 	if (play) {
@@ -84,7 +92,43 @@ SlideShow.prototype.init = function (play) {
 	}
 };
 
-SlideShow.prototype.onKeyUp = function () {
+SlideShow.prototype.zoomToFit = function() {
+	if (this.zoomable !== null) {
+		this.zoomable.flyZoomToFit();
+	}
+};
+
+SlideShow.prototype.fullScreenStart = function () {
+	if (!this.canFullScreen) {
+		return;
+	}
+	this.fullScreen = new bigshot.FullScreen(this.container.get(0));
+	this.fullScreen.open();
+	this.fullScreen.addOnClose(function(evt){
+		this.fullScreenExit();
+	}.bind(this));
+};
+
+SlideShow.prototype.fullScreenExit = function () {
+	if (this.fullScreen === null) {
+		return;
+	}
+	this.fullScreen.close();
+	this.fullScreen = null;
+};
+
+SlideShow.prototype.fullScreenToggle = function() {
+	if (this.zoomable === null) {
+		return;
+	}
+	if (this.fullScreen !== null) {
+		this.fullScreenExit();
+	} else {
+		this.fullScreenStart();
+	}
+};
+
+SlideShow.prototype.onKeyUp = function (e) {
 
 };
 
@@ -98,9 +142,29 @@ SlideShow.prototype.show = function (index) {
 		// check if we moved along while we were loading
 		if (this.current === index) {
 			this.currentImage = image;
+			if (this.zoomable !== null) {
+				this.zoomable.dispose();
+				this.zoomable = null;
+			}
 			this.container.children('img').remove();
 			this.container.append(image);
-			this.fitImage(image);
+			jQuery(image).css('position', 'absolute');
+			
+			this.zoomable = new bigshot.SimpleImage(new bigshot.ImageParameters({
+				container: this.container.get(0),
+				maxZoom: 2,
+				minZoom: -5,
+				touchUI: false,
+				width: image.width,
+				height: image.height
+			}), image);
+			this.zoomable.setMinZoom(this.zoomable.getZoomToFitValue());
+			
+			// prevent zoom-on-doubleClick
+			this.zoomable.addEventListener('dblclick', function(ie) {
+				ie.preventDefault();
+			}.bind(this));
+			
 			this.setUrl(this.images[index].path);
 			if (this.playing) {
 				this.setTimeout();
@@ -139,41 +203,6 @@ SlideShow.prototype.loadImage = function (url) {
 	return this.imageCache[url];
 };
 
-SlideShow.prototype.fitImage = function (image) {
-	if (!image) {
-		return;
-	}
-	var ratio = image.natWidth / image.natHeight,
-		screenRatio = this.container.width() / this.container.height(),
-		width = null, height = null, top = null;
-	if (ratio > screenRatio) {
-		if (this.container.width() > image.natWidth * this.maxScale) {
-			top = ((this.container.height() - image.natHeight) / 2) + 'px';
-			height = image.natHeight + 'px';
-			width = image.natWidth + 'px';
-		} else {
-			width = this.container.width() + 'px';
-			height = (this.container.width() / ratio) + 'px';
-			top = ((this.container.height() - (this.container.width() / ratio)) / 2) + 'px';
-		}
-	} else {
-		if (this.container.height() > image.natHeight * this.maxScale) {
-			top = ((this.container.height() - image.natHeight) / 2) + 'px';
-			height = image.natHeight + 'px';
-			width = image.natWidth + 'px';
-		} else {
-			top = 0;
-			height = this.container.height() + 'px';
-			width = (this.container.height() * ratio) + "px";
-		}
-	}
-	jQuery(image).css({
-		top: top,
-		width: width,
-		height: height
-	});
-};
-
 SlideShow.prototype.setTimeout = function () {
 	this.clearTimeout();
 	this.playTimeout = setTimeout(this.next.bind(this), this.interval);
@@ -206,6 +235,9 @@ SlideShow.prototype.pause = function () {
 };
 
 SlideShow.prototype.next = function () {
+	if (this.zoomable !== null) {
+		this.zoomable.stopFlying();
+	}
 	this.current = (this.current + 1) % this.images.length;
 	var next = (this.current + 1) % this.images.length;
 	this.show(this.current).then(function () {
@@ -215,6 +247,9 @@ SlideShow.prototype.next = function () {
 };
 
 SlideShow.prototype.previous = function () {
+	if (this.zoomable !== null) {
+		this.zoomable.stopFlying();
+	}
 	this.current = (this.current - 1 + this.images.length) % this.images.length;
 	var previous = (this.current - 1 + this.images.length) % this.images.length;
 	this.show(this.current).then(function () {
@@ -224,8 +259,15 @@ SlideShow.prototype.previous = function () {
 };
 
 SlideShow.prototype.stop = function () {
+	if(this.fullScreen !== null) {
+		this.fullScreenExit();
+	}
 	this.clearTimeout();
 	this.container.hide();
+	if (this.zoomable !== null) {
+		this.zoomable.dispose();
+		this.zoomable = null;
+	}
 	this.active = false;
 	if (this.onStop) {
 		this.onStop();
