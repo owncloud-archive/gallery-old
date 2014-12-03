@@ -66,8 +66,12 @@ Gallery.getAlbumInfo = function (album) {
 Gallery.getAlbumInfo.cache = {};
 Gallery.getImage = function (image) {
 	var token = ($('#gallery').data('token')) ? $('#gallery').data('token') : '';
-	return OC.generateUrl('apps/gallery/ajax/image?file={file}&token={token}', {
+	var width = $(document).width() * window.devicePixelRatio;
+	var height = $(document).height() * window.devicePixelRatio;
+	return OC.generateUrl('apps/gallery/ajax/image?file={file}&x={x}&y={y}&token={token}', {
 		file: encodeURIComponent(image),
+		x: width,
+		y: height,
 		token: token
 	});
 };
@@ -263,9 +267,13 @@ $(document).ready(function () {
 	});
 
 	$('#openAsFileListButton').click(function () {
-		window.location.href = OC.generateUrl('s/{token}', {
-			token: $('#gallery').data('token')
+		window.location.href = OC.filePath('files_sharing', '', 'public.php') + '?' + OC.buildQueryString({
+			t: $('#gallery').data('token')
 		});
+		// OC8 only
+		// window.location.href = OC.generateUrl('s/{token}', {
+			// token: $('#gallery').data('token')
+		// });
 	});
 
 	$(window).scroll(function () {
