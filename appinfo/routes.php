@@ -16,8 +16,6 @@ $this->create('gallery_ajax_images', 'ajax/images')
 	->actionInclude('gallery/ajax/getimages.php');
 $this->create('gallery_ajax_image', 'ajax/image')
 	->actionInclude('gallery/ajax/image.php');
-$this->create('gallery_ajax_thumbnail', 'ajax/thumbnail')
-	->actionInclude('gallery/ajax/thumbnail.php');
 $this->create('gallery_ajax_batch', 'ajax/thumbnail/batch')
 	->actionInclude('gallery/ajax/batch.php');
 

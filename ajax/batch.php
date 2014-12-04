@@ -52,8 +52,6 @@ foreach ($images as $image) {
 		$mimeType = $fileInfo->getMimeType();
 		$filePath = $fileInfo->getPath();
 		$imageId = $fileInfo->getId();
-		//$encryptedVolume = $fileInfo->isEncrypted();
-		//$mountedVolume = $fileInfo->isMounted();
 		OC_Log::write('gallery', '[Batch] File: ' . $filePath . ', Mime: ' . $mimeType, \OC_Log::DEBUG);
 	} else {
 		OC_Log::write('gallery', '[Batch] WARNING : ' . $image . ' is not a Fileinfo Object', \OC_Log::DEBUG);
@@ -63,12 +61,6 @@ foreach ($images as $image) {
 	$preview = new \OC\Preview($user, 'files');
 	// Yet another exception for native SVG support...
 	if ($mimeType === 'image/svg+xml' && !$preview->isMimeSupported($mimeType)) {
-		// if ($encryptedVolume === true || $mountedVolume = true) {
-			// $local = $ownerView->toTmpFile($image);
-		// } else {
-			// $local = $ownerView->getLocalFile($image);
-		// }
-		// Does this work with encrypted data?
 		$previewdata = base64_encode($userView->file_get_contents('/files/' . $image));
 		$previewmime = $mimeType;
 		OC_Log::write('gallery', '[Batch] Using native SVG rendering', \OC_Log::DEBUG);

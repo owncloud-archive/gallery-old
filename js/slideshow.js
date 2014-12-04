@@ -166,13 +166,6 @@ SlideShow.prototype.fitImage = function (image) {
 	if (!image) {
 		return;
 	}
-	
-	//console.log('this.interval',this.interval)
-	//console.log('this.maxScale',this.maxScale)
-	//console.log('image.natWidth',image.natWidth)
-	//console.log('image.natHeight',image.natHeight)
-	//console.log('this.container.width()',this.container.width())
-	//console.log('this.container.height()',this.container.height())
 
 	var ratio = image.natWidth / image.natHeight,
 		screenRatio = this.container.width() / this.container.height(),
