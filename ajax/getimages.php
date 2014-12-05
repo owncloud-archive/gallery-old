@@ -80,7 +80,6 @@ function getPath($token) {
 
 // This returns the list of all images which can be shown in the Gallery
 function getImages($mimes, $token) {
-	$path = null;
 	$images = array();
 	$result = array();
 	

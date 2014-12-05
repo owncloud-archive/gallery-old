@@ -160,7 +160,7 @@ SlideShow.prototype.getSVG = function (source) {
 	xmlhttp.send(null);
 	// Has to be base64 encoded for Firefox
 	return "data:image/svg+xml;base64," + btoa(xmlhttp.responseText); 
-}
+};
 
 SlideShow.prototype.fitImage = function (image) {
 	if (!image) {
@@ -314,6 +314,64 @@ $(document).ready(function () {
 		});
 		
 	if (OCA.Files && OCA.Files.fileActions) {
+		var prepareFileActions = function(mime) {
+			return OCA.Files.fileActions.register(mime, 'View', OC.PERMISSION_READ, '', function (filename, context) {
+				var imageUrl, fallbackUrl;
+				var fileList = context.fileList;
+				var files = fileList.files;
+				var start = 0;
+				var images = [];
+				var dir = context.dir + '/';
+				var user = OC.currentUser;
+				var width = $(document).width();
+				var height = $(document).height();
+				var scalingUp = 0; // There is a global parameter for this
+				var keepAspect = 1; // We always want to keep the aspect ratio for large images
+				
+				//console.log("context: ", context);
+
+				for (var i = 0; i < files.length; i++) {
+					var file = files[i];
+					
+					//console.log("file.name : "file.name);
+					//console.log("file.mimetype : "file.mimetype);	
+					
+					// We only add images to the slideshow if we can generate previews for this media type
+					if (file.isPreviewAvailable || file.mimetype === 'image/svg+xml') {
+						imageUrl = fallbackUrl = fileList.getDownloadUrl(file.name, dir);
+						
+						// GIFs don't get a preview so as to preserve animations.
+						// SVGs get a preview generated if the SVG provider has been enabled
+						if (file.mimetype !== 'image/gif' && (file.mimetype !== 'image/svg+xml' && file.isPreviewAvailable)) {
+							imageUrl = fileList.generatePreviewUrl({
+								file: dir + file.name,
+								x: width,
+								y: height,
+								scalingup: scalingUp,
+								a: keepAspect, 
+							});
+						}
+
+						images.push({
+							name: file.name,
+							path: dir + file.name,
+							url: imageUrl,
+							fallBack: fallbackUrl
+						});
+					}
+				}
+				for (i = 0; i < images.length; i++) {
+					//console.log("Images in the slideshow : ", images[i]);
+					if (images[i].name === filename) {
+						start = i;
+					}
+				}
+				var slideShow = new SlideShow($('#slideshow'), images);
+				slideShow.init();
+				slideShow.show(start);
+			});	
+		};
+	
 		// We ask getimages.php to give us a list of supported mimes. Images are given through the context
 		$.getJSON(OC.generateUrl('apps/gallery/ajax/images?slideshow=true')).then(function (supportedMimes) {
 
@@ -322,64 +380,9 @@ $(document).ready(function () {
 			// We only want to create slideshows for supported media types
 			for (var m = 0; m < supportedMimes.length; ++m) {
 				var mime = supportedMimes[m];
-
-				// Each click handler gets the same function and images array and is responsible to load the slideshow
-				OCA.Files.fileActions.register(mime, 'View', OC.PERMISSION_READ, '', function (filename, context) {
-					var imageUrl, fallbackUrl;
-					var fileList = context.fileList;
-					var files = fileList.files;
-					var start = 0;
-					var images = [];
-					var dir = context.dir + '/';
-					var user = OC.currentUser;
-					var width = $(document).width();
-					var height = $(document).height();
-					var scalingUp = 0; // There is a global parameter for this
-					var keepAspect = 1; // We always want to keep the aspect ratio for large images
-					
-					//console.log("context: ", context);
-
-					for (var i = 0; i < files.length; i++) {
-						var file = files[i];
-						
-						//console.log("file.name : "file.name);
-						//console.log("file.mimetype : "file.mimetype);	
-						
-						// We only add images to the slideshow if we can generate previews for this media type
-						if (file.isPreviewAvailable || file.mimetype === 'image/svg+xml') {
-							imageUrl = fallbackUrl = fileList.getDownloadUrl(file.name, dir);
-							
-							// GIFs don't get a preview so as to preserve animations.
-							// SVGs get a preview generated if the SVG provider has been enabled
-							if (file.mimetype !== 'image/gif' && (file.mimetype !== 'image/svg+xml' && file.isPreviewAvailable)) {
-								imageUrl = fileList.generatePreviewUrl({
-									file: dir + file.name,
-									x: width,
-									y: height,
-									scalingup: scalingUp,
-									a: keepAspect, 
-								});
-							}
-
-							images.push({
-								name: file.name,
-								path: dir + file.name,
-								url: imageUrl,
-								fallBack: fallbackUrl
-							});
-						}
-					}
-					for (i = 0; i < images.length; i++) {
-						//console.log("Images in the slideshow : ", images[i]);
-						if (images[i].name === filename) {
-							start = i;
-						}
-					}
-					var slideShow = new SlideShow($('#slideshow'), images);
-					slideShow.init();
-					slideShow.show(start);
-				});
-				OCA.Files.fileActions.setDefault(mime, 'View');
+					// Each click handler gets the same function and images array and is responsible to load the slideshow
+					prepareFileActions(mime);
+					OCA.Files.fileActions.setDefault(mime, 'View');
 			}
 		});
 	}
