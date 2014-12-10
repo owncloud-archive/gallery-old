@@ -142,9 +142,8 @@ SlideShow.prototype.loadImage = function (url, fallBack) {
 				this.imageCache[url].reject(url);
 			}
 		}.bind(this);
-		// The SVG test only works if the URL ends with the extension...
-		testurl = url.replace(/&download$/, '');
-		if (testurl.substr(testurl.length - 4) === '.svg' || testurl.substr(testurl.length - 5) === '.svgz') {
+		var filename = decodeURIComponent((new RegExp('[?|&]file=([^&;]+?)(&|#|;|$)').exec(url)||[,""])[1].replace(/\+/g, '%20'))||null;
+        if (filename.substr(filename.length - 4) === '.svg' || filename.substr(filename.length - 5) === '.svgz') {
 			image.src = this.getSVG(url);
 			//this.container.append(image);
 		} else {
