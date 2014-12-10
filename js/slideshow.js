@@ -142,10 +142,10 @@ SlideShow.prototype.loadImage = function (url, fallBack) {
 				this.imageCache[url].reject(url);
 			}
 		}.bind(this);
-		var filename = decodeURIComponent((new RegExp('[?|&]file=([^&;]+?)(&|#|;|$)').exec(url)||[,""])[1].replace(/\+/g, '%20'))||null;
+		// Parameter name can be file or files...
+        var filename = decodeURIComponent((new RegExp('[?|&]files?=([^&;]+?)(&|#|;|$)').exec(url)||[,""])[1].replace(/\+/g, '%20'))||null;
         if (filename.substr(filename.length - 4) === '.svg' || filename.substr(filename.length - 5) === '.svgz') {
 			image.src = this.getSVG(url);
-			//this.container.append(image);
 		} else {
 			image.src = url;
 		}
