@@ -26,6 +26,10 @@ OCP\Util::addStyle('gallery', 'styles');
 OCP\Util::addStyle('gallery', 'mobile');
 
 $token = \OC::$server->getRequest()->getParam('token');
+// OC 7 compatibility
+if (is_null($token)) {
+	$token = $_GET['t'];
+}
 
 if ($token) {
 	$linkItem = \OCP\Share::getShareByToken($token, false);
