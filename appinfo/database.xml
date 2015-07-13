@@ -7,6 +7,14 @@
 	 <table>
 		<name>*dbprefix*pictures_images_cache</name>
 		<declaration>
+            <field>
+                <name>id</name>
+                <type>integer</type>
+                <default>0</default>
+                <notnull>true</notnull>
+                <autoincrement>1</autoincrement>
+                <length>4</length>
+            </field>
 			<field>
 				<name>uid_owner</name>
 				<type>text</type>
@@ -36,6 +44,14 @@
   <table>
     <name>*dbprefix*gallery_sharing</name>
     <declaration>
+      <field>
+        <name>id</name>
+        <type>integer</type>
+        <default>0</default>
+        <notnull>true</notnull>
+        <autoincrement>1</autoincrement>
+        <length>4</length>
+      </field>
       <field>
         <name>token</name>
         <type>text</type>
