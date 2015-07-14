@@ -1,6 +1,11 @@
 Pictures
 =======
 
+## App unmaintained
+
+This app is unmaintained and will receive no updates / fixes.
+New development takes place within the [galleryplus](https://github.com/owncloud/galleryplus) repository.
+
 [![Build Status](https://travis-ci.org/owncloud/gallery.svg?branch=master)](https://travis-ci.org/owncloud/gallery)
 
 Picture gallery for ownCloud.
