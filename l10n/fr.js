@@ -4,7 +4,7 @@ OC.L10N.register(
     "Pictures" : "Images",
     "Picture view" : "Visualisation de l'image",
     "Next" : "Suivant",
-    "Play" : "Démarrer",
+    "Play" : "Lire",
     "Pause" : "Pause",
     "Previous" : "Précédent",
     "Close" : "Fermer",
